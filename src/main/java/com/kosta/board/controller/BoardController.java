@@ -1,12 +1,19 @@
 package com.kosta.board.controller;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.OutputStream;
+import java.net.URLEncoder;
 import java.util.List;
 
 import javax.servlet.ServletContext;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.util.FileCopyUtils;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -44,6 +51,7 @@ public class BoardController {
 		try {
 			//String path = servletContext.getRealPath("/upload/");//getRealPath: webapp의 실제경로를 얻어옴.
 			String path = "D:/upload/";
+			//String path = "D:/javaStudy/workspace/stsWorkspace/BoardBoot/src/main/webapp/upload/";
 			MultipartFile file = board.getFile(); //파일 자체를 가져옴
 			if(!file.isEmpty()) {
 				File destFile = new File(path + file.getOriginalFilename());//file을 destFile로 옮겨라.
@@ -229,5 +237,37 @@ public class BoardController {
 		return mav;
 	}
 		
+	@GetMapping("/file_down")
+	public void file_down(@RequestParam("downFile") String fileName, HttpServletRequest request, HttpServletResponse response) {
+		String path = "D:/upload/";
+		File file = new File(path + fileName);
+		String sfileName = null;
+		FileInputStream fis = null;
+		try {
+			if(request.getHeader("User-Agent").indexOf("MSIE")>-1) {	//브라우저가 IE일때
+				sfileName = URLEncoder.encode(file.getName(),"utf-8");
+			}else {
+				//파일명을 UTF-8인코딩 형태의 바이트로 받아서 ISO-8599-1로 문자를 생성
+				sfileName = new String(file.getName().getBytes("utf-8"),"ISO-8859-1");
+			}
+			response.setCharacterEncoding("utf-8");
+			response.setContentType("application/octec-stream;charset=utf-8");
+			response.setHeader("Content-Disposition", "attachment; filename=\""+sfileName+"\";");
+			
+			OutputStream out = response.getOutputStream();
+			fis = new FileInputStream(file);
+			FileCopyUtils.copy(fis, out);
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			if(fis != null) {
+				try {
+					fis.close();
+				} catch (Exception e) {} 
+			}
+		}
+		
+	}
 	
 }
