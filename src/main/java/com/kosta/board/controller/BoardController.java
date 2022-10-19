@@ -51,7 +51,6 @@ public class BoardController {
 		try {
 			//String path = servletContext.getRealPath("/upload/");//getRealPath: webapp의 실제경로를 얻어옴.
 			String path = "D:/upload/";
-			//String path = "D:/javaStudy/workspace/stsWorkspace/BoardBoot/src/main/webapp/upload/";
 			MultipartFile file = board.getFile(); //파일 자체를 가져옴
 			if(!file.isEmpty()) {
 				File destFile = new File(path + file.getOriginalFilename());//file을 destFile로 옮겨라.
@@ -236,7 +235,8 @@ public class BoardController {
 		}
 		return mav;
 	}
-		
+	
+	//파일다운
 	@GetMapping("/file_down")
 	public void file_down(@RequestParam("downFile") String fileName, HttpServletRequest request, HttpServletResponse response) {
 		String path = "D:/upload/";
